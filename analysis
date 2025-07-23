@@ -1,0 +1,68 @@
+import pandas as pd
+from datetime import datetime
+import plotly.express as px
+
+# === CONFIGURATION ===
+csv_path = 'allData.csv'              # Path to your CSV
+datetime_column = 'date'              # Adjust if needed
+datetime_format = '%Y-%m-%d_%H:%M:%S' # Your datetime format
+
+# === LOAD CSV ===
+df = pd.read_csv(csv_path)
+
+# === PARSE DATETIME & ADD RELATIVE TIME IN SECONDS ===
+df[datetime_column] = pd.to_datetime(df[datetime_column], format=datetime_format)
+start_time = df[datetime_column].iloc[0]
+df['elapsed_sec'] = (df[datetime_column] - start_time).dt.total_seconds()
+
+# === VIEW AVAILABLE COLUMNS ===
+print("\nAvailable Columns:")
+print(df.columns.tolist())
+
+# === SELECT COLUMNS TO PLOT ===
+selected_columns = input("\nEnter column names to plot (comma-separated), or press Enter to show all: ")
+if selected_columns.strip():
+    columns_to_plot = [col.strip() for col in selected_columns.split(',')]
+else:
+    columns_to_plot = [col for col in df.columns if df[col].dtype != 'object' and col not in [datetime_column]]
+
+# === FILTER TIME RANGE ===
+filter_option = input("\nFilter by (1) elapsed seconds or (2) absolute datetime? (1/2/n): ").strip()
+
+if filter_option == '1':
+    t_start_input = input("Start time in seconds from start (or press Enter to skip): ").strip()
+    t_end_input = input("End time in seconds from start (or press Enter to skip): ").strip()
+
+    t_start = float(t_start_input) if t_start_input else df['elapsed_sec'].min()
+    t_end = float(t_end_input) if t_end_input else df['elapsed_sec'].max()
+    df = df[df['elapsed_sec'].between(t_start, t_end)]
+
+elif filter_option == '2':
+    dt_start_input = input("Start datetime (YYYY-MM-DD_HH:MM:SS) or press Enter to skip: ").strip()
+    dt_end_input = input("End datetime (YYYY-MM-DD_HH:MM:SS) or press Enter to skip: ").strip()
+
+    dt_start = datetime.strptime(dt_start_input, datetime_format) if dt_start_input else df[datetime_column].min()
+    dt_end = datetime.strptime(dt_end_input, datetime_format) if dt_end_input else df[datetime_column].max()
+    df = df[df[datetime_column].between(dt_start, dt_end)]
+
+# === SELECT X-AXIS ===
+#x_axis_choice = input("Use 'elapsed_sec' or 'date' as x-axis? (elapsed/date): ").strip().lower()
+x_column = datetime_column
+
+# === MELT FOR PLOTTING MULTIPLE SERIES ===
+df_melted = df[[x_column] + columns_to_plot].melt(id_vars=x_column, value_vars=columns_to_plot,
+                                                  var_name='Variable', value_name='Value')
+
+# === PLOT ALL SELECTED COLUMNS IN ONE PLOT ===
+fig = px.line(
+    df_melted,
+    x=x_column,
+    y='Value',
+    color='Variable',
+    title="Multiple Time Series",
+    hover_data={x_column: True, 'Variable': True, 'Value': True},
+)
+
+fig.update_traces(mode='lines')  # lines only, for performance
+fig.update_layout(hovermode='x unified', height=600)
+fig.show()

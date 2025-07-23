@@ -36,17 +36,47 @@ columns_to_plot = st.multiselect("Select columns to plot:", available_columns)
 normalize = st.checkbox("Normalize data (0 to 1 range)", value=True)
 
 # Time filtering
-filter_option = st.radio("Filter by time:", ["No filter", "Elapsed seconds", "Absolute datetime"])
+filter_option = st.radio("Filter by time:", ["No filter", "Elapsed seconds"])
 
 if filter_option == "Elapsed seconds":
     t_min, t_max = float(df['elapsed_sec'].min()), float(df['elapsed_sec'].max())
     t_range = st.slider("Select time range (seconds):", t_min, t_max, (t_min, t_max))
     df = df[df['elapsed_sec'].between(t_range[0], t_range[1])]
 
-elif filter_option == "Absolute datetime":
-    dt_min, dt_max = df[datetime_column].min(), df[datetime_column].max()
-    dt_range = st.slider("Select datetime range:", dt_min, dt_max, (dt_min, dt_max))
-    df = df[df[datetime_column].between(dt_range[0], dt_range[1])]
+
+
+# elif filter_option == "Absolute datetime":
+#     import datetime
+#     # Get min and max times as datetime.time
+#     times = df[datetime_column].dt.time
+#     min_time = min(times)
+#     max_time = max(times)
+
+#     # Split min and max time into components
+#     min_h, min_m, min_s = min_time.hour, min_time.minute, min_time.second
+#     max_h, max_m, max_s = max_time.hour, max_time.minute, max_time.second
+
+#     # Input for start time components
+#     start_h = st.number_input("Start hour (0-23):", min_value=0, max_value=23, value=min_h)
+#     start_m = st.number_input("Start minute (0-59):", min_value=0, max_value=59, value=min_m)
+#     start_s = st.number_input("Start second (0-59):", min_value=0, max_value=59, value=min_s)
+#     start_time = datetime.time(hour=start_h, minute=start_m, second=start_s)
+
+#     # Input for end time components
+#     end_h = st.number_input("End hour (0-23):", min_value=0, max_value=23, value=max_h)
+#     end_m = st.number_input("End minute (0-59):", min_value=0, max_value=59, value=max_m)
+#     end_s = st.number_input("End second (0-59):", min_value=0, max_value=59, value=max_s)
+#     end_time = datetime.time(hour=end_h, minute=end_m, second=end_s)
+
+#     # Filter dataframe by time range
+#     if start_time <= end_time:
+#         df = df[df[datetime_column].dt.time.between(start_time, end_time)]
+#     else:
+#         df = df[(df[datetime_column].dt.time >= start_time) | (df[datetime_column].dt.time <= end_time)]
+
+
+
+
 
 # X-axis selection
 x_column = st.radio("X-axis:", ["elapsed_sec", datetime_column])

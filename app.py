@@ -15,7 +15,7 @@ csv_path = "allData.csv"
 
 if not os.path.exists(csv_path):
     import requests
-    url = "https://syncandshare.lrz.de/getlink/fiVzufuHFsUCRYxVAmRPht/allData.csv"
+    url = "https://drive.google.com/uc?export=download&id=1zMDVQHR6KLBqEnE1ko5Wj8RS6PbOvqwk"
     with open(csv_path, "wb") as f:
         f.write(requests.get(url).content)
 

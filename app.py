@@ -3,14 +3,22 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 from datetime import datetime
-
+import os
 # === CONFIGURATION ===
-csv_path = 'allData.csv'  # Make sure this file is in the same directory
 
 datetime_column = 'date'
 datetime_format = '%Y-%m-%d_%H:%M:%S'
 
 # === LOAD DATA ===
+
+csv_path = "allData.csv"
+
+if not os.path.exists(csv_path):
+    import requests
+    url = "https://syncandshare.lrz.de/getlink/fiVzufuHFsUCRYxVAmRPht/allData.csv"
+    with open(csv_path, "wb") as f:
+        f.write(requests.get(url).content)
+
 df = pd.read_csv(csv_path)
 df[datetime_column] = pd.to_datetime(df[datetime_column], format=datetime_format)
 start_time = df[datetime_column].iloc[0]

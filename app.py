@@ -5,33 +5,6 @@ import plotly.graph_objects as go
 from datetime import datetime
 import os
 # === CONFIGURATION ===
-def download_file_from_google_drive(file_id, destination):
-    import requests
-
-    def get_confirm_token(response):
-        for key, value in response.cookies.items():
-            if key.startswith('download_warning'):
-                return value
-        return None
-
-    def save_response_content(response, destination):
-        CHUNK_SIZE = 32768
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:  # filter out keep-alive new chunks
-                    f.write(chunk)
-
-    URL = "https://docs.google.com/uc?export=download"
-    session = requests.Session()
-
-    response = session.get(URL, params={'id': file_id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': file_id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    save_response_content(response, destination)
 
 datetime_column = 'date'
 datetime_format = '%Y-%m-%d_%H:%M:%S'
@@ -39,8 +12,12 @@ datetime_format = '%Y-%m-%d_%H:%M:%S'
 # === LOAD DATA ===
 
 csv_path = "allData.csv"
+
 if not os.path.exists(csv_path):
-    download_file_from_google_drive("1zMDVQHR6KLBqEnE1ko5Wj8RS6PbOvqwk", csv_path)
+    import requests
+    url = "https://drive.google.com/uc?export=download&id=1zMDVQHR6KLBqEnE1ko5Wj8RS6PbOvqwk"
+    with open(csv_path, "wb") as f:
+        f.write(requests.get(url).content)
 
 df = pd.read_csv(csv_path)
 df[datetime_column] = pd.to_datetime(df[datetime_column], format=datetime_format)

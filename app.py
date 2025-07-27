@@ -81,9 +81,12 @@ if filter_option == "Elapsed seconds":
 # X-axis selection
 x_column = st.radio("X-axis:", ["elapsed_sec", datetime_column])
 
-grouping_series = df['elapsed_sec'].astype(int).rename('elapsed_sec_int')
-df_downsampled = df.groupby(grouping_series).first().reset_index(drop=False)
-x_plot = 'elapsed_sec_int' if x_column == 'elapsed_sec' else datetime_column
+# Downsample to 0.1-second intervals
+bin_size = 0.1
+df['elapsed_bin'] = (df['elapsed_sec'] // bin_size).astype(int) * bin_size
+df_downsampled = df.groupby('elapsed_bin').first().reset_index(drop=False)
+x_plot = 'elapsed_bin' if x_column == 'elapsed_sec' else datetime_column
+
 
 # === PLOTTING ===
 fig = go.Figure()

@@ -15,7 +15,7 @@ csv_path = "allData.csv"
 
 if not os.path.exists(csv_path):
     import requests
-    url = "https://www.dropbox.com/scl/fi/hwkowqgl6glh1ldmjtncm/allData.csv?rlkey=wns6bqvca0wmusrh2p59fixoo&st=2927adbs&dl=1"
+    url = "https://www.dropbox.com/scl/fi/27mkxgglgiod63qd2ovkb/allData.csv?rlkey=0zjhkddqnaqt5mergyjv5sh1i&st=27a3u2vr&dl=1"
     with open(csv_path, "wb") as f:
         f.write(requests.get(url).content)
 
